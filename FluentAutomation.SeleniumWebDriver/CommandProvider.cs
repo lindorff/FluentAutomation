@@ -19,13 +19,6 @@ namespace FluentAutomation
     {
         private readonly IFileStoreProvider fileStoreProvider = null;
         private readonly Lazy<IWebDriver> lazyWebDriver = null;
-        private IWebDriver webDriver
-        {
-            get
-            {
-                return lazyWebDriver.Value;
-            }
-        }
 
         public CommandProvider(Func<IWebDriver> webDriverFactory, IFileStoreProvider fileStoreProvider)
         {
@@ -40,17 +33,25 @@ namespace FluentAutomation
             this.fileStoreProvider = fileStoreProvider;
         }
 
+        public IWebDriver WebDriver
+        {
+            get
+            {
+                return lazyWebDriver.Value;
+            }
+        }
+
         public Uri Url
         {
             get
             {
-                return new Uri(this.webDriver.Url, UriKind.Absolute);
+                return new Uri(this.WebDriver.Url, UriKind.Absolute);
             }
         }
 
         public void Navigate(Uri url)
         {
-            this.Act(() => this.webDriver.Navigate().GoToUrl(url));
+            this.Act(() => this.WebDriver.Navigate().GoToUrl(url));
         }
 
         public Func<IElement> Find(string selector)
@@ -59,7 +60,7 @@ namespace FluentAutomation
             {
                 try
                 {
-                    var webElement = this.webDriver.FindElement(Sizzle.Find(selector));
+                    var webElement = this.WebDriver.FindElement(Sizzle.Find(selector));
                     return new Element(webElement, selector);
                 }
                 catch (NoSuchElementException)
@@ -75,7 +76,7 @@ namespace FluentAutomation
             {
                 try
                 {
-                    var webElements = this.webDriver.FindElements(Sizzle.Find(selector));
+                    var webElements = this.WebDriver.FindElements(Sizzle.Find(selector));
                     List<Element> resultSet = new List<Element>();
                     webElements.ToList().ForEach(x => resultSet.Add(new Element(x, selector)));
                     return resultSet;
@@ -92,7 +93,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var rootElement = this.Find("html")() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(rootElement.WebElement)
                     .MoveByOffset(x, y)
                     .Click()
@@ -106,7 +107,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(containerElement.WebElement)
                     .MoveByOffset(x, y)
                     .Click()
@@ -129,7 +130,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var rootElement = this.Find("html")() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(rootElement.WebElement)
                     .MoveByOffset(x, y)
                     .DoubleClick()
@@ -143,7 +144,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(containerElement.WebElement)
                     .MoveByOffset(x, y)
                     .DoubleClick()
@@ -157,7 +158,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(containerElement.WebElement)
                     .DoubleClick()
                     .Build()
@@ -170,7 +171,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .ContextClick(containerElement.WebElement)
                     .Build()
                     .Perform();
@@ -182,7 +183,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var rootElement = this.Find("html")() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(rootElement.WebElement)
                     .MoveByOffset(x, y)
                     .Build()
@@ -195,7 +196,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(containerElement.WebElement)
                     .MoveByOffset(x, y)
                     .Build()
@@ -208,7 +209,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var unwrappedElement = element() as Element;
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .MoveToElement(unwrappedElement.WebElement)
                     .Build()
                     .Perform();
@@ -229,7 +230,7 @@ namespace FluentAutomation
                     case "a":
                     case "iframe":
                     case "button":
-                        var executor = (IJavaScriptExecutor)this.webDriver;
+                        var executor = (IJavaScriptExecutor)this.WebDriver;
                         executor.ExecuteScript("arguments[0].focus();", unwrappedElement.WebElement);
                         break;
                 }
@@ -243,7 +244,7 @@ namespace FluentAutomation
                 var unwrappedSource = source() as Element;
                 var unwrappedTarget = target() as Element;
 
-                new Actions(this.webDriver)
+                new Actions(this.WebDriver)
                     .DragAndDrop(unwrappedSource.WebElement, unwrappedTarget.WebElement)
                     .Build()
                     .Perform();
@@ -267,7 +268,7 @@ namespace FluentAutomation
             {
                 var unwrappedElement = element() as Element;
 
-                ((IJavaScriptExecutor)this.webDriver).ExecuteScript(string.Format("if (typeof jQuery != 'undefined') {{ jQuery(\"{0}\").val(\"{1}\").trigger('change'); }}", unwrappedElement.Selector.Replace("\"", ""), text.Replace("\"", "")));
+                ((IJavaScriptExecutor)this.WebDriver).ExecuteScript(string.Format("if (typeof jQuery != 'undefined') {{ jQuery(\"{0}\").val(\"{1}\").trigger('change'); }}", unwrappedElement.Selector.Replace("\"", ""), text.Replace("\"", "")));
             });
         }
 
@@ -360,7 +361,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 // get raw screenshot
-                var screenshotDriver = (ITakesScreenshot)this.webDriver;
+                var screenshotDriver = (ITakesScreenshot)this.WebDriver;
                 var tmpImagePath = Path.Combine(Settings.UserTempDirectory, screenshotName);
                 screenshotDriver.GetScreenshot().SaveAsFile(tmpImagePath, ImageFormat.Png);
 
@@ -531,9 +532,9 @@ namespace FluentAutomation
         {
             try
             {
-                this.webDriver.Manage().Cookies.DeleteAllCookies();
-                this.webDriver.Quit();
-                this.webDriver.Dispose();
+                this.WebDriver.Manage().Cookies.DeleteAllCookies();
+                this.WebDriver.Quit();
+                this.WebDriver.Dispose();
             }
             catch (Exception) { }
         }
