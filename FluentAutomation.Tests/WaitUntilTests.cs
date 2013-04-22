@@ -11,7 +11,7 @@ namespace FluentAutomation.Tests
     {
         public WaitUntilTests()
         {
-            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.Chrome);
+            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.Chrome, SeleniumWebDriver.RuntimeType.x64);
         }
 
         [Fact]

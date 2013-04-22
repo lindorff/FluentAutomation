@@ -18,8 +18,13 @@ namespace FluentAutomation
                 var resourceBytes = new byte[(int)resourceStream.Length];
 
                 resourceStream.Read(resourceBytes, 0, resourceBytes.Length);
-                File.WriteAllBytes(resourceFileName, resourceBytes);
+                File.WriteAllBytes(RemoveRuntimeTypeFromFileName(resourceFileName), resourceBytes);
             }
+        }
+
+        private static string RemoveRuntimeTypeFromFileName(string filename)
+        {
+            return filename.Replace("_x86", "").Replace("_x64", "");
         }
     }
 }

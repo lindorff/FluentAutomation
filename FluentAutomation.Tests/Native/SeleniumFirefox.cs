@@ -10,7 +10,7 @@ namespace Tests
     {
         public SeleniumFirefox()
         {
-            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.Firefox);
+            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.Firefox, SeleniumWebDriver.RuntimeType.x64);
         }
     }
 }

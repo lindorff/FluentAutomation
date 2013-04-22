@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using FluentAutomation.Interfaces;
 using OpenQA.Selenium;
 
@@ -35,6 +30,12 @@ namespace FluentAutomation
             Chrome = 4
         }
 
+        public enum RuntimeType
+        {
+            x86,
+            x64
+        }
+
         /// <summary>
         /// Currently selected <see cref="Browser"/>.
         /// </summary>
@@ -45,14 +46,15 @@ namespace FluentAutomation
         /// </summary>
         public static void Bootstrap()
         {
-            Bootstrap(Browser.Firefox);
+            Bootstrap(Browser.Firefox, RuntimeType.x64);
         }
 
         /// <summary>
         /// Bootstrap Selenium provider and utilize the specified <paramref name="browser"/>.
         /// </summary>
         /// <param name="browser"></param>
-        public static void Bootstrap(Browser browser)
+        /// <param name="runtime"></param>
+        public static void Bootstrap(Browser browser, RuntimeType runtime)
         {
             SeleniumWebDriver.SelectedBrowser = browser;
 
@@ -65,7 +67,7 @@ namespace FluentAutomation
                 switch (SeleniumWebDriver.SelectedBrowser)
                 {
                     case Browser.InternetExplorer:
-                        EmbeddedResources.UnpackFromAssembly("IEDriverServer.exe", Assembly.GetAssembly(typeof(SeleniumWebDriver)));
+                        EmbeddedResources.UnpackFromAssembly(GetIEDriverExecutableName(runtime), Assembly.GetAssembly(typeof (SeleniumWebDriver)));
                         container.Register<IWebDriver, Wrappers.IEDriverWrapper>().AsMultiInstance();
                         break;
                     case Browser.Firefox:
@@ -77,6 +79,11 @@ namespace FluentAutomation
                         break;
                 }
             };
+        }
+
+        private static string GetIEDriverExecutableName(RuntimeType runtime)
+        {
+            return runtime == RuntimeType.x86 ? "IEDriverServer_x86.exe" : "IEDriverServer_x64.exe";
         }
     }
 }

@@ -10,7 +10,7 @@ namespace FluentAutomation.Node.Debug
     {
         static void Main(string[] args)
         {
-            SeleniumWebDriver.Bootstrap(FluentAutomation.SeleniumWebDriver.Browser.Chrome);
+            SeleniumWebDriver.Bootstrap(FluentAutomation.SeleniumWebDriver.Browser.Chrome, SeleniumWebDriver.RuntimeType.x64);
             //PhantomJS.Bootstrap();
             NodeService.Current.Start();
             System.Console.ReadLine();
