@@ -90,8 +90,8 @@ namespace FluentAutomation.Tests
         public void MSDNInputField()
         {
             I.Open("http://msdn.microsoft.com/en-us/library/ie/ms535841(v=vs.85).aspx");
-            I.Expect.Text("Search Dev Center with Bing").In("#HeaderSearchTextBox");
-            I.Expect.Value("Search Dev Center with Bing").In("#HeaderSearchTextBox");
+            I.Expect.Text("Search Internet Explorer with Bing").In("#HeaderSearchTextBox");
+            I.Expect.Value("Search Internet Explorer with Bing").In("#HeaderSearchTextBox");
         }
     }
 }
