@@ -148,6 +148,14 @@ namespace FluentAutomation
             throw new NotImplementedException();
         }
 
+        public void DragAndDrop(int sourceX, int sourceY, int destinationX, int destinationY)
+        {
+            MouseControl.SetPosition(sourceX, sourceY);
+            MouseControl.MouseEvent(MouseControl.MouseEvent_LeftButtonDown, sourceX, sourceY, 0, 0);
+            MouseControl.SetPosition(destinationX, destinationY);
+            MouseControl.MouseEvent(MouseControl.MouseEvent_LeftButtonUp, destinationX, destinationY, 0, 0);
+        }
+
         public void DragAndDrop(Func<IElement> source, Func<IElement> target)
         {
             var sourceEl = source() as Element;
@@ -170,6 +178,27 @@ namespace FluentAutomation
         }
 
         public void EnterTextWithoutEvents(Func<IElement> element, string text)
+        {
+            var el = element() as Element;
+            if (el.IsText)
+            {
+                var txt = new WatiNCore.TextField(this.browser.DomContainer, el.AutomationElement.NativeElement);
+                txt.Value = text;
+                this.browser.DomContainer.Eval(string.Format("if (typeof jQuery != 'undefined') {{ jQuery({0}).trigger('keyup'); }}", el.AutomationElement.GetJavascriptElementReference()));
+            }
+        }
+
+        public void AppendText(Func<IElement> element, string text)
+        {
+            var el = element() as Element;
+            if (el.IsText)
+            {
+                var txt = new WatiNCore.TextField(this.browser.DomContainer, el.AutomationElement.NativeElement);
+                txt.AppendText(text);
+            }
+        }
+
+        public void AppendTextWithoutEvents(Func<IElement> element, string text)
         {
             var el = element() as Element;
             if (el.IsText)
@@ -264,95 +293,7 @@ namespace FluentAutomation
         {
             throw new NotImplementedException();
         }
-
-        public void Wait(int seconds)
-        {
-            this.Wait(TimeSpan.FromSeconds(seconds));
-        }
-
-        public void Wait()
-        {
-            this.Wait(Settings.DefaultWaitTimeout);
-        }
-
-        public void Wait(TimeSpan timeSpan)
-        {
-            this.Act(() => System.Threading.Thread.Sleep(timeSpan));
-        }
-
-        public void WaitUntil(Expression<Func<bool>> conditionFunc)
-        {
-            this.WaitUntil(conditionFunc, Settings.DefaultWaitUntilTimeout);
-        }
-
-        public void WaitUntil(Expression<Func<bool>> conditionFunc, TimeSpan timeout)
-        {
-            this.Act(() =>
-            {
-                DateTime dateTimeTimeout = DateTime.Now.Add(timeout);
-                bool isFuncValid = false;
-                var compiledFunc = conditionFunc.Compile();
-
-                while (DateTime.Now < dateTimeTimeout)
-                {
-                    if (compiledFunc() == true)
-                    {
-                        isFuncValid = true;
-                        break;
-                    }
-
-                    System.Threading.Thread.Sleep(Settings.DefaultWaitUntilThreadSleep);
-                }
-
-                // If func is still not valid, assume we've hit the timeout.
-                if (isFuncValid == false)
-                {
-                    throw new FluentException("Conditional wait passed the timeout [{0}ms] for expression [{1}].", timeout.TotalMilliseconds, conditionFunc.ToExpressionString());
-                }
-            });
-        }
-
-        public void WaitUntil(Expression<Action> conditionAction)
-        {
-            this.WaitUntil(conditionAction, Settings.DefaultWaitUntilTimeout);
-        }
-
-        public void WaitUntil(Expression<Action> conditionAction, TimeSpan timeout)
-        {
-            this.Act(() =>
-            {
-                DateTime dateTimeTimeout = DateTime.Now.Add(timeout);
-                bool threwException = false;
-                var compiledAction = conditionAction.Compile();
-
-                while (DateTime.Now < dateTimeTimeout)
-                {
-                    try
-                    {
-                        threwException = false;
-                        compiledAction();
-                    }
-                    catch (FluentException)
-                    {
-                        threwException = true;
-                    }
-
-                    if (!threwException)
-                    {
-                        break;
-                    }
-
-                    System.Threading.Thread.Sleep(Settings.DefaultWaitUntilThreadSleep);
-                }
-
-                // If an exception was thrown the last loop, assume we hit the timeout
-                if (threwException == true)
-                {
-                    throw new FluentException("Conditional wait passed the timeout [{0}ms]", timeout.TotalMilliseconds, conditionAction.ToExpressionString());
-                }
-            });
-        }
-
+        
         public void Press(string keys)
         {
             System.Windows.Forms.SendKeys.SendWait(keys);

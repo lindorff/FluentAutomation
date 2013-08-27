@@ -19,6 +19,13 @@ namespace FluentAutomation
     {
         private readonly IFileStoreProvider fileStoreProvider = null;
         private readonly Lazy<IWebDriver> lazyWebDriver = null;
+        private IWebDriver webDriver
+        {
+            get
+            {
+                return lazyWebDriver.Value;
+            }
+        }
 
         public CommandProvider(Func<IWebDriver> webDriverFactory, IFileStoreProvider fileStoreProvider)
         {
@@ -27,31 +34,29 @@ namespace FluentAutomation
                 var webDriver = webDriverFactory();
                 webDriver.Manage().Cookies.DeleteAllCookies();
                 webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(10));
+
+                if (FluentAutomation.Settings.WindowHeight.HasValue && FluentAutomation.Settings.WindowWidth.HasValue)
+                {
+                    webDriver.Manage().Window.Size = new Size(FluentAutomation.Settings.WindowWidth.Value, FluentAutomation.Settings.WindowHeight.Value);
+                }
+
                 return webDriver;
             });
 
             this.fileStoreProvider = fileStoreProvider;
         }
 
-        public IWebDriver WebDriver
-        {
-            get
-            {
-                return lazyWebDriver.Value;
-            }
-        }
-
         public Uri Url
         {
             get
             {
-                return new Uri(this.WebDriver.Url, UriKind.Absolute);
+                return new Uri(this.webDriver.Url, UriKind.Absolute);
             }
         }
 
         public void Navigate(Uri url)
         {
-            this.Act(() => this.WebDriver.Navigate().GoToUrl(url));
+            this.Act(() => this.webDriver.Navigate().GoToUrl(url));
         }
 
         public Func<IElement> Find(string selector)
@@ -60,7 +65,7 @@ namespace FluentAutomation
             {
                 try
                 {
-                    var webElement = this.WebDriver.FindElement(Sizzle.Find(selector));
+                    var webElement = this.webDriver.FindElement(Sizzle.Find(selector));
                     return new Element(webElement, selector);
                 }
                 catch (NoSuchElementException)
@@ -76,7 +81,7 @@ namespace FluentAutomation
             {
                 try
                 {
-                    var webElements = this.WebDriver.FindElements(Sizzle.Find(selector));
+                    var webElements = this.webDriver.FindElements(Sizzle.Find(selector));
                     List<Element> resultSet = new List<Element>();
                     webElements.ToList().ForEach(x => resultSet.Add(new Element(x, selector)));
                     return resultSet;
@@ -93,11 +98,9 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var rootElement = this.Find("html")() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(rootElement.WebElement)
-                    .MoveByOffset(x, y)
+                new Actions(this.webDriver)
+                    .MoveToElement(rootElement.WebElement, x, y)
                     .Click()
-                    .Build()
                     .Perform();
             });
         }
@@ -107,11 +110,9 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(containerElement.WebElement)
-                    .MoveByOffset(x, y)
+                new Actions(this.webDriver)
+                    .MoveToElement(containerElement.WebElement, x, y)
                     .Click()
-                    .Build()
                     .Perform();
             });
         }
@@ -120,8 +121,10 @@ namespace FluentAutomation
         {
             this.Act(() =>
             {
-                var unwrappedElement = element() as Element;
-                unwrappedElement.WebElement.Click();
+                var containerElement = element() as Element;
+                new Actions(this.webDriver)
+                    .Click(containerElement.WebElement)
+                    .Perform();
             });
         }
 
@@ -130,11 +133,9 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var rootElement = this.Find("html")() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(rootElement.WebElement)
-                    .MoveByOffset(x, y)
+                new Actions(this.webDriver)
+                    .MoveToElement(rootElement.WebElement, x, y)
                     .DoubleClick()
-                    .Build()
                     .Perform();
             });
         }
@@ -144,11 +145,9 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(containerElement.WebElement)
-                    .MoveByOffset(x, y)
+                new Actions(this.webDriver)
+                    .MoveToElement(containerElement.WebElement, x, y)
                     .DoubleClick()
-                    .Build()
                     .Perform();
             });
         }
@@ -158,10 +157,8 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(containerElement.WebElement)
-                    .DoubleClick()
-                    .Build()
+                new Actions(this.webDriver)
+                    .DoubleClick(containerElement.WebElement)
                     .Perform();
             });
         }
@@ -171,9 +168,8 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.WebDriver)
+                new Actions(this.webDriver)
                     .ContextClick(containerElement.WebElement)
-                    .Build()
                     .Perform();
             });
         }
@@ -183,10 +179,8 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var rootElement = this.Find("html")() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(rootElement.WebElement)
-                    .MoveByOffset(x, y)
-                    .Build()
+                new Actions(this.webDriver)
+                    .MoveToElement(rootElement.WebElement, x, y)
                     .Perform();
             });
         }
@@ -196,10 +190,8 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var containerElement = element() as Element;
-                new Actions(this.WebDriver)
-                    .MoveToElement(containerElement.WebElement)
-                    .MoveByOffset(x, y)
-                    .Build()
+                new Actions(this.webDriver)
+                    .MoveToElement(containerElement.WebElement, x, y)
                     .Perform();
             });
         }
@@ -209,9 +201,8 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 var unwrappedElement = element() as Element;
-                new Actions(this.WebDriver)
+                new Actions(this.webDriver)
                     .MoveToElement(unwrappedElement.WebElement)
-                    .Build()
                     .Perform();
             });
         }
@@ -230,10 +221,24 @@ namespace FluentAutomation
                     case "a":
                     case "iframe":
                     case "button":
-                        var executor = (IJavaScriptExecutor)this.WebDriver;
+                        var executor = (IJavaScriptExecutor)this.webDriver;
                         executor.ExecuteScript("arguments[0].focus();", unwrappedElement.WebElement);
                         break;
                 }
+            });
+        }
+
+        public void DragAndDrop(int sourceX, int sourceY, int destinationX, int destinationY)
+        {
+            this.Act(() =>
+            {
+                var rootElement = this.Find("html")() as Element;
+                new Actions(this.webDriver)
+                    .MoveToElement(rootElement.WebElement, sourceX, sourceY)
+                    .ClickAndHold()
+                    .MoveToElement(rootElement.WebElement, destinationX, destinationY)
+                    .Release()
+                    .Perform();
             });
         }
 
@@ -244,9 +249,8 @@ namespace FluentAutomation
                 var unwrappedSource = source() as Element;
                 var unwrappedTarget = target() as Element;
 
-                new Actions(this.WebDriver)
+                new Actions(this.webDriver)
                     .DragAndDrop(unwrappedSource.WebElement, unwrappedTarget.WebElement)
-                    .Build()
                     .Perform();
             });
         }
@@ -268,7 +272,25 @@ namespace FluentAutomation
             {
                 var unwrappedElement = element() as Element;
 
-                ((IJavaScriptExecutor)this.WebDriver).ExecuteScript(string.Format("if (typeof jQuery != 'undefined') {{ jQuery(\"{0}\").val(\"{1}\").trigger('change'); }}", unwrappedElement.Selector.Replace("\"", ""), text.Replace("\"", "")));
+                ((IJavaScriptExecutor)this.webDriver).ExecuteScript(string.Format("if (typeof jQuery != 'undefined') {{ jQuery(\"{0}\").val(\"{1}\").trigger('change'); }}", unwrappedElement.Selector.Replace("\"", ""), text.Replace("\"", "")));
+            });
+        }
+
+        public void AppendText(Func<IElement> element, string text)
+        {
+            this.Act(() =>
+            {
+                var unwrappedElement = element() as Element;
+                unwrappedElement.WebElement.SendKeys(text);
+            });
+        }
+
+        public void AppendTextWithoutEvents(Func<IElement> element, string text)
+        {
+            this.Act(() =>
+            {
+                var unwrappedElement = element() as Element;
+                ((IJavaScriptExecutor)this.webDriver).ExecuteScript(string.Format("if (typeof jQuery != 'undefined') {{ jQuery(\"{0}\").val(jQuery(\"{0}\").val() + \"{1}\").trigger('change'); }}", unwrappedElement.Selector.Replace("\"", ""), text.Replace("\"", "")));
             });
         }
 
@@ -361,7 +383,7 @@ namespace FluentAutomation
             this.Act(() =>
             {
                 // get raw screenshot
-                var screenshotDriver = (ITakesScreenshot)this.WebDriver;
+                var screenshotDriver = (ITakesScreenshot)this.webDriver;
                 var tmpImagePath = Path.Combine(Settings.UserTempDirectory, screenshotName);
                 screenshotDriver.GetScreenshot().SaveAsFile(tmpImagePath, ImageFormat.Png);
 
@@ -405,112 +427,6 @@ namespace FluentAutomation
             });
         }
 
-        public void Wait(int seconds)
-        {
-            this.Wait(TimeSpan.FromSeconds(seconds));
-        }
-
-        public void Wait()
-        {
-            this.Wait(Settings.DefaultWaitTimeout);
-        }
-
-        public void Wait(TimeSpan timeSpan)
-        {
-            this.Act(() => System.Threading.Thread.Sleep(timeSpan));
-        }
-
-        public void WaitUntil(Expression<Func<bool>> conditionFunc)
-        {
-            this.WaitUntil(conditionFunc, Settings.DefaultWaitUntilTimeout);
-        }
-
-        public void WaitUntil(Expression<Func<bool>> conditionFunc, TimeSpan timeout)
-        {
-            this.Act(() =>
-            {
-                DateTime dateTimeTimeout = DateTime.Now.Add(timeout);
-                bool isFuncValid = false;
-                var compiledFunc = conditionFunc.Compile();
-
-                FluentException lastException = null;
-                while (DateTime.Now < dateTimeTimeout)
-                {
-                    try
-                    {
-                        if (compiledFunc() == true)
-                        {
-                            isFuncValid = true;
-                            break;
-                        }
-
-                        System.Threading.Thread.Sleep(Settings.DefaultWaitUntilThreadSleep);
-                    }
-                    catch (FluentException ex)
-                    {
-                        lastException = ex;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new FluentException("An unexpected exception was thrown inside WaitUntil(Func<bool>). See InnerException for details.", ex);
-                    }
-                }
-
-                // If func is still not valid, assume we've hit the timeout.
-                if (isFuncValid == false)
-                {
-                    throw new FluentException("Conditional wait passed the timeout [{0}ms] for expression [{1}].", lastException, timeout.TotalMilliseconds, conditionFunc.ToExpressionString());
-                }
-            });
-        }
-
-        public void WaitUntil(Expression<Action> conditionAction)
-        {
-            this.WaitUntil(conditionAction, Settings.DefaultWaitUntilTimeout);
-        }
-
-        public void WaitUntil(Expression<Action> conditionAction, TimeSpan timeout)
-        {
-            this.Act(() =>
-            {
-                DateTime dateTimeTimeout = DateTime.Now.Add(timeout);
-                bool threwException = false;
-                var compiledAction = conditionAction.Compile();
-
-                FluentException lastFluentException = null;
-                while (DateTime.Now < dateTimeTimeout)
-                {
-                    try
-                    {
-                        threwException = false;
-                        compiledAction();
-                    }
-                    catch (FluentException ex)
-                    {
-                        threwException = true;
-                        lastFluentException = ex;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new FluentException("An unexpected exception was thrown inside WaitUntil(Action). See InnerException for details.", ex);
-                    }
-
-                    if (!threwException)
-                    {
-                        break;
-                    }
-
-                    System.Threading.Thread.Sleep(Settings.DefaultWaitUntilThreadSleep);
-                }
-
-                // If an exception was thrown the last loop, assume we hit the timeout
-                if (threwException == true)
-                {
-                    throw new FluentException("Conditional wait passed the timeout [{0}ms]. See InnerException for details of the last FluentException thrown.", lastFluentException, timeout.TotalMilliseconds);
-                }
-            });
-        }
-
         public void Press(string keys)
         {
             this.Act(() => System.Windows.Forms.SendKeys.SendWait(keys));
@@ -532,9 +448,9 @@ namespace FluentAutomation
         {
             try
             {
-                this.WebDriver.Manage().Cookies.DeleteAllCookies();
-                this.WebDriver.Quit();
-                this.WebDriver.Dispose();
+                this.webDriver.Manage().Cookies.DeleteAllCookies();
+                this.webDriver.Quit();
+                this.webDriver.Dispose();
             }
             catch (Exception) { }
         }

@@ -211,6 +211,11 @@ namespace FluentAutomation
             this.waitForPhantomReady();
         }
 
+        public void DragAndDrop(int sourceX, int sourceY, int destinationX, int destinationY)
+        {
+            throw new NotImplementedException();
+        }
+
         public void DragAndDrop(Func<IElement> source, Func<IElement> target)
         {
             this.phantomConnection.Send(JsonConvert.SerializeObject(new { Action = "DragAndDrop", SourceSelector = source().Selector, TargetSelector = target().Selector }));
@@ -227,6 +232,16 @@ namespace FluentAutomation
         {
             // PhantomJS doesn't differentiate currently
             this.EnterText(element, text);
+        }
+
+        public void AppendText(Func<IElement> element, string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AppendTextWithoutEvents(Func<IElement> element, string text)
+        {
+            throw new NotImplementedException();
         }
 
         public void SelectText(Func<IElement> element, string optionText)
@@ -277,95 +292,7 @@ namespace FluentAutomation
         {
             throw new NotImplementedException();
         }
-
-        public void Wait(int seconds)
-        {
-            this.Wait(TimeSpan.FromSeconds(seconds));
-        }
-
-        public void Wait()
-        {
-            this.Wait(Settings.DefaultWaitTimeout);
-        }
-
-        public void Wait(TimeSpan timeSpan)
-        {
-            this.Act(() => System.Threading.Thread.Sleep(timeSpan));
-        }
-
-        public void WaitUntil(Expression<Func<bool>> conditionFunc)
-        {
-            this.WaitUntil(conditionFunc, Settings.DefaultWaitUntilTimeout);
-        }
-
-        public void WaitUntil(Expression<Func<bool>> conditionFunc, TimeSpan timeout)
-        {
-            this.Act(() =>
-            {
-                DateTime dateTimeTimeout = DateTime.Now.Add(timeout);
-                bool isFuncValid = false;
-                var compiledFunc = conditionFunc.Compile();
-
-                while (DateTime.Now < dateTimeTimeout)
-                {
-                    if (compiledFunc() == true)
-                    {
-                        isFuncValid = true;
-                        break;
-                    }
-
-                    System.Threading.Thread.Sleep(Settings.DefaultWaitUntilThreadSleep);
-                }
-
-                // If func is still not valid, assume we've hit the timeout.
-                if (isFuncValid == false)
-                {
-                    throw new FluentException("Conditional wait passed the timeout [{0}ms] for expression [{1}].", timeout.TotalMilliseconds, conditionFunc.ToExpressionString());
-                }
-            });
-        }
-
-        public void WaitUntil(Expression<Action> conditionAction)
-        {
-            this.WaitUntil(conditionAction, Settings.DefaultWaitUntilTimeout);
-        }
-
-        public void WaitUntil(Expression<Action> conditionAction, TimeSpan timeout)
-        {
-            this.Act(() =>
-            {
-                DateTime dateTimeTimeout = DateTime.Now.Add(timeout);
-                bool threwException = false;
-                var compiledAction = conditionAction.Compile();
-
-                while (DateTime.Now < dateTimeTimeout)
-                {
-                    try
-                    {
-                        threwException = false;
-                        compiledAction();
-                    }
-                    catch (FluentException)
-                    {
-                        threwException = true;
-                    }
-
-                    if (!threwException)
-                    {
-                        break;
-                    }
-
-                    System.Threading.Thread.Sleep(Settings.DefaultWaitUntilThreadSleep);
-                }
-
-                // If an exception was thrown the last loop, assume we hit the timeout
-                if (threwException == true)
-                {
-                    throw new FluentException("Conditional wait passed the timeout [{0}ms]", timeout.TotalMilliseconds, conditionAction.ToExpressionString());
-                }
-            });
-        }
-
+        
         public void Press(string keys)
         {
             this.phantomConnection.Send(JsonConvert.SerializeObject(new { Action = "Press", Keys = keys }));

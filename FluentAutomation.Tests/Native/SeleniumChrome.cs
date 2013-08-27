@@ -10,7 +10,7 @@ namespace FluentAutomation.Tests.Native
     {
         public SeleniumChrome()
         {
-            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.Chrome, SeleniumWebDriver.RuntimeType.x64);
+            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.PhantomJs);
         }
 
         [Fact]

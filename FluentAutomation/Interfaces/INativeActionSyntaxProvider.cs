@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace FluentAutomation.Interfaces
 {
-    public interface INativeActionSyntaxProvider : IDisposable
+    public interface INativeActionSyntaxProvider : ISyntaxProvider
     {
         // native only
         /// <summary>
@@ -46,6 +46,14 @@ namespace FluentAutomation.Interfaces
         /// <param name="element"><see cref="IElement"/> factory function.</param>
         /// <returns><c>DragDropSyntaxProvider</c></returns>
         ActionSyntaxProvider.DragDropSyntaxProvider Drag(Func<IElement> element);
+
+        /// <summary>
+        /// Begin a Drag/Drop operation using coordinates.
+        /// </summary>
+        /// <param name="sourceX"></param>
+        /// <param name="sourceY"></param>
+        /// <returns></returns>
+        ActionSyntaxProvider.DragDropByPositionSyntaxProvider Drag(int sourceX, int sourceY);
 
         /// <summary>
         /// Find an element matching <paramref name="selector"/>.
@@ -194,6 +202,20 @@ namespace FluentAutomation.Interfaces
         /// <param name="text">Text to enter into input or textarea.</param>
         /// <returns><c>TextEntrySyntaxProvider</c></returns>
         ActionSyntaxProvider.TextEntrySyntaxProvider Enter(string text);
+
+        /// <summary>
+        /// Append a number or other object value into a valid input or textarea. Syntactical candy to avoid having to call .ToString() on integers in tests.
+        /// </summary>
+        /// <param name="nonString">Value to enter into input or textarea.</param>
+        /// <returns><c>TextEntrySyntaxProvider</c></returns>
+        ActionSyntaxProvider.TextAppendSyntaxProvider Append(dynamic nonString);
+
+        /// <summary>
+        /// Append text into a valid input or textarea.
+        /// </summary>
+        /// <param name="text">Text to enter into input or textarea.</param>
+        /// <returns><c>TextEntrySyntaxProvider</c></returns>
+        ActionSyntaxProvider.TextAppendSyntaxProvider Append(string text);
 
         /// <summary>
         /// Sets the focus to element matching <paramref name="selector"/>.

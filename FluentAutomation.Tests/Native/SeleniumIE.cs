@@ -10,7 +10,7 @@ namespace Tests
     {
         public SeleniumIE()
         {
-            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.InternetExplorer, SeleniumWebDriver.RuntimeType.x64);
+            FluentAutomation.SeleniumWebDriver.Bootstrap(SeleniumWebDriver.Browser.InternetExplorer);
         }
     }
 }
