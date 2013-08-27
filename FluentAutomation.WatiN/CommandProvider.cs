@@ -289,6 +289,11 @@ namespace FluentAutomation
             this.browser.CaptureWebPageToFile(screenshotName);
         }
 
+        public override void SaveSourceCode(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
         public void UploadFile(Func<IElement> element, int x, int y, string fileName)
         {
             throw new NotImplementedException();

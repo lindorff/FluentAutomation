@@ -36,6 +36,8 @@ namespace FluentAutomation
                         var screenshotName = string.Format(CultureInfo.CurrentCulture, "ExpectFailed_{0}", DateTimeOffset.Now.Date.ToFileTime());
                         ex.ScreenshotPath = System.IO.Path.Combine(Settings.ScreenshotPath, screenshotName);
                         this.TakeScreenshot(screenshotName);
+
+                        this.SaveSourceCode(screenshotName);
                     }
 
                     throw;
@@ -47,6 +49,8 @@ namespace FluentAutomation
                         var screenshotName = string.Format(CultureInfo.CurrentCulture, "ActionFailed_{0}", DateTimeOffset.Now.Date.ToFileTime());
                         ex.ScreenshotPath = System.IO.Path.Combine(Settings.ScreenshotPath, screenshotName);
                         this.TakeScreenshot(screenshotName);
+
+                        this.SaveSourceCode(screenshotName);
                     }
 
                     throw;
@@ -69,7 +73,7 @@ namespace FluentAutomation
         {
             this.StoredActions.ForEach(action => action());
         }
-        
+
         public void Wait(int seconds)
         {
             this.Wait(TimeSpan.FromSeconds(seconds));
@@ -177,5 +181,6 @@ namespace FluentAutomation
         }
 
         public abstract void TakeScreenshot(string screenshotName);
+        public abstract void SaveSourceCode(string filename);
     }
 }

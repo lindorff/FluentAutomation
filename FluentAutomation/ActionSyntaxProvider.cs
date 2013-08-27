@@ -160,6 +160,11 @@ namespace FluentAutomation
             this.commandProvider.TakeScreenshot(screenshotName);
         }
 
+        public void SaveSourceCode(string filename)
+        {
+            this.commandProvider.SaveSourceCode(filename);
+        }
+
         public void Type(string text)
         {
             this.commandProvider.Type(text);

@@ -393,6 +393,18 @@ namespace FluentAutomation
             });
         }
 
+        public override void SaveSourceCode(string filename)
+        {
+            this.Act(() =>
+                {
+                    var source = WebDriver.PageSource;
+                    using (StreamWriter file = new StreamWriter(filename))
+                    {
+                        file.WriteLine(source);
+                    }
+                });
+        }
+
         public void UploadFile(Func<IElement> element, int x, int y, string fileName)
         {
             this.Act(() =>

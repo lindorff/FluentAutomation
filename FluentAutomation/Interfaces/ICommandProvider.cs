@@ -59,5 +59,6 @@ namespace FluentAutomation.Interfaces
 
         void Press(string keys);
         void Type(string text);
+        void SaveSourceCode(string filename);
     }
 }

@@ -335,5 +335,7 @@ namespace FluentAutomation.Interfaces
         /// Expects - Fluent's assertion functionality.
         /// </summary>
         ExpectSyntaxProvider Expect { get; }
+
+        void SaveSourceCode(string filename);
     }
 }
