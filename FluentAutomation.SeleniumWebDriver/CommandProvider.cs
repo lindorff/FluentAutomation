@@ -162,7 +162,7 @@ namespace FluentAutomation
                     .Perform();
             });
         }
-        
+
         public void RightClick(Func<IElement> element)
         {
             this.Act(() =>
@@ -268,7 +268,7 @@ namespace FluentAutomation
 
         public void EnterTextWithoutEvents(Func<IElement> element, string text)
         {
-            this.Act(() =>  
+            this.Act(() =>
             {
                 var unwrappedElement = element() as Element;
 
@@ -403,6 +403,27 @@ namespace FluentAutomation
                         file.WriteLine(source);
                     }
                 });
+        }
+
+        public void SwitchToWindow(string popupName)
+        {
+            string currentWindowHandle = WebDriver.CurrentWindowHandle;
+            var allHandles = WebDriver.WindowHandles;
+
+            foreach (var handle in allHandles)
+            {
+                if (!handle.Equals(currentWindowHandle))
+                {
+                    var window = WebDriver.SwitchTo().Window(handle);
+
+                    if (window.Title.Equals(popupName))
+                    {
+                        return;
+                    }
+                }
+            }
+
+            throw new FluentException(String.Format("Popup page {0} was not found!", popupName));
         }
 
         public void UploadFile(Func<IElement> element, int x, int y, string fileName)

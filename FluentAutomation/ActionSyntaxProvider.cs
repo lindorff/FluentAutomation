@@ -529,6 +529,11 @@ namespace FluentAutomation
             }
         }
 
+        public void SwitchToWindow(string windowName)
+        {
+            commandProvider.SwitchToWindow(windowName);
+        }
+
         private bool isDisposed = false;
         public bool IsDisposed()
         {

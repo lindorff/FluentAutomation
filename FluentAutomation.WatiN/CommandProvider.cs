@@ -294,6 +294,11 @@ namespace FluentAutomation
             throw new NotImplementedException();
         }
 
+        public void SwitchToWindow(string popupName)
+        {
+            throw new NotImplementedException();
+        }
+
         public void UploadFile(Func<IElement> element, int x, int y, string fileName)
         {
             throw new NotImplementedException();

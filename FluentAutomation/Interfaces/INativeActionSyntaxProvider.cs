@@ -337,5 +337,6 @@ namespace FluentAutomation.Interfaces
         ExpectSyntaxProvider Expect { get; }
 
         void SaveSourceCode(string filename);
+        void SwitchToWindow(string windowName);
     }
 }
